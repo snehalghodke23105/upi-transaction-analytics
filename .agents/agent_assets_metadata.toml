@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "rjO_tztAcuZVUHs1BBWrg"
+uri = "file://upi-analytics-project.tar.gz"
+type = "unspecified"
+title = "UPI Analytics Project (Source Code)"

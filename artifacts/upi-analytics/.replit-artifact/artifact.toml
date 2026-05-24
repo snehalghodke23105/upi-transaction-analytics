@@ -1,0 +1,31 @@
+kind = "data-app"
+previewPath = "/"
+title = "UPI Transaction Analytics"
+version = "1.0.0"
+id = "artifacts/upi-analytics"
+router = "path"
+
+[[integratedSkills]]
+name = "data-visualization"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21094
+
+[services.development]
+run = "pnpm --filter @workspace/upi-analytics run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/upi-analytics", "run", "build" ]
+publicDir = "artifacts/upi-analytics/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21094"
+BASE_PATH = "/"

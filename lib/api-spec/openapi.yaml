@@ -1,0 +1,489 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: UPI Transaction Analytics API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: analytics
+    description: UPI transaction analytics
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /analytics/summary:
+    get:
+      operationId: getAnalyticsSummary
+      tags: [analytics]
+      summary: Get dashboard KPI summary
+      responses:
+        "200":
+          description: Summary KPIs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsSummary"
+
+  /analytics/transactions-over-time:
+    get:
+      operationId: getTransactionsOverTime
+      tags: [analytics]
+      summary: Daily transaction volume over time
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        "200":
+          description: Daily volume data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DailyVolume"
+
+  /analytics/spending-by-category:
+    get:
+      operationId: getSpendingByCategory
+      tags: [analytics]
+      summary: Spending breakdown by merchant category
+      responses:
+        "200":
+          description: Category spending data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategorySpending"
+
+  /analytics/top-merchants:
+    get:
+      operationId: getTopMerchants
+      tags: [analytics]
+      summary: Top merchants by transaction volume
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Top merchants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MerchantStats"
+
+  /analytics/fraud-patterns:
+    get:
+      operationId: getFraudPatterns
+      tags: [analytics]
+      summary: Fraud breakdown by type and pattern
+      responses:
+        "200":
+          description: Fraud pattern data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FraudPattern"
+
+  /analytics/fraud-by-hour:
+    get:
+      operationId: getFraudByHour
+      tags: [analytics]
+      summary: Fraud transaction count by hour of day
+      responses:
+        "200":
+          description: Hourly fraud distribution
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HourlyFraud"
+
+  /analytics/amount-distribution:
+    get:
+      operationId: getAmountDistribution
+      tags: [analytics]
+      summary: Transaction amount distribution in buckets
+      responses:
+        "200":
+          description: Amount distribution
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AmountBucket"
+
+  /analytics/payment-apps:
+    get:
+      operationId: getPaymentApps
+      tags: [analytics]
+      summary: Transaction breakdown by UPI payment app
+      responses:
+        "200":
+          description: Payment app stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaymentAppStats"
+
+  /analytics/transactions:
+    get:
+      operationId: getTransactions
+      tags: [analytics]
+      summary: Paginated transaction list with filters
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: fraudOnly
+          in: query
+          schema:
+            type: boolean
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: minAmount
+          in: query
+          schema:
+            type: number
+        - name: maxAmount
+          in: query
+          schema:
+            type: number
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionPage"
+
+  /analytics/fraud-by-state:
+    get:
+      operationId: getFraudByState
+      tags: [analytics]
+      summary: Fraud distribution by Indian state
+      responses:
+        "200":
+          description: State-wise fraud data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StateFraud"
+
+  /analytics/monthly-trends:
+    get:
+      operationId: getMonthlyTrends
+      tags: [analytics]
+      summary: Month-over-month transaction and fraud trends
+      responses:
+        "200":
+          description: Monthly trends
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MonthlyTrend"
+
+  /analytics/user-segments:
+    get:
+      operationId: getUserSegments
+      tags: [analytics]
+      summary: User spending behavior segments
+      responses:
+        "200":
+          description: User segment data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserSegment"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    AnalyticsSummary:
+      type: object
+      required:
+        - totalTransactions
+        - totalVolume
+        - fraudCount
+        - fraudRate
+        - avgTransactionAmount
+        - activeUsers
+        - fraudVolume
+        - successRate
+      properties:
+        totalTransactions:
+          type: integer
+        totalVolume:
+          type: number
+        fraudCount:
+          type: integer
+        fraudRate:
+          type: number
+        avgTransactionAmount:
+          type: number
+        activeUsers:
+          type: integer
+        fraudVolume:
+          type: number
+        successRate:
+          type: number
+
+    DailyVolume:
+      type: object
+      required: [date, totalTransactions, fraudTransactions, totalAmount, fraudAmount]
+      properties:
+        date:
+          type: string
+        totalTransactions:
+          type: integer
+        fraudTransactions:
+          type: integer
+        totalAmount:
+          type: number
+        fraudAmount:
+          type: number
+
+    CategorySpending:
+      type: object
+      required: [category, totalAmount, transactionCount, fraudCount, avgAmount]
+      properties:
+        category:
+          type: string
+        totalAmount:
+          type: number
+        transactionCount:
+          type: integer
+        fraudCount:
+          type: integer
+        avgAmount:
+          type: number
+
+    MerchantStats:
+      type: object
+      required: [merchantName, totalAmount, transactionCount, fraudCount, category]
+      properties:
+        merchantName:
+          type: string
+        totalAmount:
+          type: number
+        transactionCount:
+          type: integer
+        fraudCount:
+          type: integer
+        category:
+          type: string
+
+    FraudPattern:
+      type: object
+      required: [patternType, count, totalAmount, percentage]
+      properties:
+        patternType:
+          type: string
+        count:
+          type: integer
+        totalAmount:
+          type: number
+        percentage:
+          type: number
+
+    HourlyFraud:
+      type: object
+      required: [hour, fraudCount, totalCount, fraudRate]
+      properties:
+        hour:
+          type: integer
+        fraudCount:
+          type: integer
+        totalCount:
+          type: integer
+        fraudRate:
+          type: number
+
+    AmountBucket:
+      type: object
+      required: [bucket, label, count, fraudCount]
+      properties:
+        bucket:
+          type: string
+        label:
+          type: string
+        count:
+          type: integer
+        fraudCount:
+          type: integer
+
+    PaymentAppStats:
+      type: object
+      required: [appName, transactionCount, totalAmount, fraudCount, marketShare]
+      properties:
+        appName:
+          type: string
+        transactionCount:
+          type: integer
+        totalAmount:
+          type: number
+        fraudCount:
+          type: integer
+        marketShare:
+          type: number
+
+    Transaction:
+      type: object
+      required:
+        - id
+        - transactionId
+        - userId
+        - merchantName
+        - category
+        - amount
+        - paymentApp
+        - status
+        - isFraud
+        - fraudType
+        - timestamp
+        - senderState
+      properties:
+        id:
+          type: integer
+        transactionId:
+          type: string
+        userId:
+          type: string
+        merchantName:
+          type: string
+        category:
+          type: string
+        amount:
+          type: number
+        paymentApp:
+          type: string
+        status:
+          type: string
+        isFraud:
+          type: boolean
+        fraudType:
+          type: ["string", "null"]
+        timestamp:
+          type: string
+        senderState:
+          type: string
+
+    TransactionPage:
+      type: object
+      required: [transactions, total, page, limit, totalPages]
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+
+    StateFraud:
+      type: object
+      required: [state, totalTransactions, fraudCount, fraudRate, totalAmount]
+      properties:
+        state:
+          type: string
+        totalTransactions:
+          type: integer
+        fraudCount:
+          type: integer
+        fraudRate:
+          type: number
+        totalAmount:
+          type: number
+
+    MonthlyTrend:
+      type: object
+      required: [month, totalTransactions, fraudTransactions, totalAmount, fraudAmount, fraudRate]
+      properties:
+        month:
+          type: string
+        totalTransactions:
+          type: integer
+        fraudTransactions:
+          type: integer
+        totalAmount:
+          type: number
+        fraudAmount:
+          type: number
+        fraudRate:
+          type: number
+
+    UserSegment:
+      type: object
+      required: [segment, userCount, avgSpend, avgTransactionCount, fraudRate]
+      properties:
+        segment:
+          type: string
+        userCount:
+          type: integer
+        avgSpend:
+          type: number
+        avgTransactionCount:
+          type: number
+        fraudRate:
+          type: number
